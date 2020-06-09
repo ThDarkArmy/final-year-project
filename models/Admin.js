@@ -2,7 +2,6 @@ const mongoose = require("mongoose")
 
 
 const adminSchema = new mongoose.Schema({
-    _id: mongoose.Schema.Types.ObjectId,
     name: {
         type: String,
         required: true,
@@ -16,6 +15,11 @@ const adminSchema = new mongoose.Schema({
     },
     mobile: {
         type: Number,
+        required: true,
+        trim: true
+    },
+    school: {
+        type: String,
         required: true,
         trim: true
     },

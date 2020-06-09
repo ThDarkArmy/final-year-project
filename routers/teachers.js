@@ -49,14 +49,14 @@ router.post('/signup',async (req, res)=>{
         newTeacher.save()
 
         const payload = {
-            teacher: teacher
+            teacher: newTeacher
         }
 
         jwt.sign(payload, process.env.SECRET_KEY, {
             expiresIn: 360000
         }, (err, token)=>{
             if(err) throw err
-            res.status(200).json({token})
+            res.status(200).json({token:token, teacher: newTeacher})
         })
 
     }catch(err){
@@ -82,7 +82,7 @@ router.post('/login', async (req, res)=>{
             expiresIn: 360000
         }, (err, token)=>{
             if(err) throw err
-            res.status(200).json({token})
+            res.status(200).json({token: token, teacher: teacher})
         })
 
     }catch(err){

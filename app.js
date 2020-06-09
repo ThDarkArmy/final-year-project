@@ -28,11 +28,13 @@ const attendance = require("./routers/attendances")
 const student = require("./routers/students")
 const fees = require('./routers/fees')
 const teacher = require('./routers/teachers')
+const admin = require('./routers/admin')
 
 app.use('/attendance',attendance)
 app.use('/student',student)
 app.use('/fee', fees)
 app.use('/teacher', teacher)
+app.use('/admin', admin)
 
 app.listen(PORT, ()=>{
     console.log("Server is listening on port : "+PORT)

@@ -6,6 +6,8 @@ const app = express()
 
 // database connection
 require('./config/database')
+
+// dotenv
 require('dotenv').config()
 
 // setting port
@@ -16,6 +18,7 @@ app.use(bodyParser.urlencoded({extended: false}))
 app.use(bodyParser.json())
 app.use(morgan("dev"))
 
+// home route
 app.get("/",(req, res)=>{
     res.status(201).json({message: "This is home page"})
 })
@@ -23,9 +26,13 @@ app.get("/",(req, res)=>{
 // routes
 const attendance = require("./routers/attendances")
 const student = require("./routers/students")
+const fees = require('./routers/fees')
+const teacher = require('./routers/teachers')
 
 app.use('/attendance',attendance)
 app.use('/student',student)
+app.use('/fee', fees)
+app.use('/teacher', teacher)
 
 app.listen(PORT, ()=>{
     console.log("Server is listening on port : "+PORT)

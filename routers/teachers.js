@@ -1,18 +1,17 @@
 const express = require("express")
 const router = express.Router()
 const mongoose = require('mongoose')
-const Student = require('../models/Student')
+const Teacher = require('../models/Teacher')
 const bcrypt = require('bcryptjs')
 const jwt = require("jsonwebtoken")
 const auth = require('../middlewares/check-auth')
-const Fee = require('../models/Fee')
 
 mongoose.Promise = global.Promise
 
 router.get('/',async (req, res)=>{
     try{
-        const student = await Student.find({})
-        res.status(200).json(student)
+        const teachers = await Teacher.find({})
+        res.status(200).json(teachers)
     }catch(err){
         res.status(404).json({msg: "Server Error.", error: err})
     }
@@ -20,8 +19,8 @@ router.get('/',async (req, res)=>{
 
 router.get('/:id',auth,async (req, res)=>{
     try{
-        const student = await Student.findById(req.params.id)
-        res.status(200).json(student)
+        const teacher = await Teacher.findById(req.params.id)
+        res.status(200).json(teacher)
     }catch(err){
         res.status(404).json({msg: "Server Error.", error: err})
     }
@@ -30,49 +29,34 @@ router.get('/:id',auth,async (req, res)=>{
 
 router.post('/signup',async (req, res)=>{
     try{
-        console.log("signup request")
-        const newStudent = new Student({
+        const newTeacher = new Teacher({
             name: req.body.name,
-            roll: req.body.roll,
             email: req.body.email,
             mobile: req.body.mobile,
-            std: req.body.std,
+            classTeacherOfClass: req.body.classTeacherOfClass,
             password: req.body.password
         })
 
-        const student = await Student.findOne({email:newStudent.email})
-        if(student){
+        const teacher = await Teacher.findOne({email:newTeacher.email})
+        if(teacher){
             return res.status(500).json({msg: "User with given email already exists."});
         }
-        // adding fee to the student
-        const fee = await Fee.findOne({$and:[{std: newStudent.std}, {month: new Date().getMonth()}, {year: new Date().getFullYear()}]})
-        if(fee){
-            const fees = [{
-                tuitionFee: fee.tuitionFee,
-                examFee: fee.examFee,
-                admissionFee: fee.admissionFee,
-                month: fee.month,
-                year: fee.year,
-                isPaid: false,
-                datePaid: null,
-            }]
-            newStudent.fee = fees
-        }
+
         const salt = await bcrypt.genSalt(8)
-        const hashedPassword = await bcrypt.hash(newStudent.password, salt)
-        console.log("password",hashedPassword)
-        newStudent.password = hashedPassword
-        newStudent.save()
+        const hashedPassword = await bcrypt.hash(newTeacher.password, salt)
+        console.log(hashedPassword)
+        newTeacher.password = hashedPassword
+        newTeacher.save()
 
         const payload = {
-            student: newStudent
+            teacher: teacher
         }
 
         jwt.sign(payload, process.env.SECRET_KEY, {
             expiresIn: 360000
         }, (err, token)=>{
             if(err) throw err
-            res.status(200).json({token: token, student: newStudent})
+            res.status(200).json({token})
         })
 
     }catch(err){
@@ -85,20 +69,20 @@ router.post('/signup',async (req, res)=>{
 router.post('/login', async (req, res)=>{
     try{
         const {email, password} = req.body
-        let student = await Student.findOne({email})
-        if(!student) return res.status(400).json({msg: "Invalid Credentials"})
+        let teacher = await Teacher.findOne({email})
+        if(!teacher) return res.status(400).json({msg: "Invalid Credentials"})
 
-        const isMatch = await bcrypt.compare(password, student.password) 
+        const isMatch = await bcrypt.compare(password, teacher.password) 
         if(!isMatch) return res.status(400).json({msg: "Invalid Credentials"})
 
         const payload = {
-            student: student
+            teacher: teacher
         }
         jwt.sign(payload, process.env.SECRET_KEY, {
             expiresIn: 360000
         }, (err, token)=>{
             if(err) throw err
-            res.status(200).json({token:token, student: student})
+            res.status(200).json({token})
         })
 
     }catch(err){
@@ -110,19 +94,16 @@ router.post('/login', async (req, res)=>{
 
 router.put('/:id',auth, async (req, res)=>{
     try{
-        const newStudent = new Student({
+        const newTeacher = new Teacher({
             _id: req.params.id,
             name: req.body.name,
-            roll: req.body.roll,
             email: req.body.email,
             mobile: req.body.mobile,
-            std: req.body.std,
+            classTeacherOfClass: req.body.classTeacherOfClass,
             password: req.body.password
         })
 
-        const student = Student.findById(req.params.id)
-        newStudent.fee = student.fee
-        const response = await Student.findByIdAndUpdate(req.params.id,{$set: newStudent}, {new: true})
+        const response = await Teacher.findByIdAndUpdate(req.params.id,{$set: newTeacher}, {new: true})
         res.status(201).json(response)
 
     }catch(err){
@@ -132,7 +113,7 @@ router.put('/:id',auth, async (req, res)=>{
 
 router.delete('/:id',auth, async (req, res)=>{
     try{
-        const response = await Student.findByIdAndDelete(req.params.id)
+        const response = await Teacher.findByIdAndDelete(req.params.id)
         res.status(200).json(response)
     }catch(err){
         res.status(500).json({msg: "Server Error", Error: err})

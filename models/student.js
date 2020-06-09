@@ -1,8 +1,6 @@
 const mongoose = require("mongoose")
 
-
 const studentSchema = new mongoose.Schema({
-    _id: mongoose.Schema.Types.ObjectId,
     name: {
         type: String,
         required: true,
@@ -23,7 +21,7 @@ const studentSchema = new mongoose.Schema({
         required: true,
         trim: true
     },
-    class: {
+    std: {
         type: String,
         required: true
     },
@@ -41,6 +39,25 @@ const studentSchema = new mongoose.Schema({
             default : false
         }
     }],
+    fee: [{
+        tuitionFee: {
+            type: Number,
+            required: true
+        },
+        examFee: {
+            type: Number
+        },
+        admissionFee: {
+            type: Number
+        },
+        isPaid: {
+            type: Boolean,
+            default: false
+        },
+        datePaid: Date,
+        month: String,
+        year: Number 
+    }]
 })
 
 const Student = mongoose.model("Student", studentSchema)

@@ -60,7 +60,6 @@ router.post('/signup',async (req, res)=>{
         }
         const salt = await bcrypt.genSalt(8)
         const hashedPassword = await bcrypt.hash(newStudent.password, salt)
-        console.log("password",hashedPassword)
         newStudent.password = hashedPassword
         newStudent.save()
 

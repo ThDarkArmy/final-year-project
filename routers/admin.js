@@ -17,15 +17,15 @@ router.get('/',async (req, res)=>{
     }
 })
 
-// router.get('/:id',auth,async (req, res)=>{
-//     try{
-//         const admin = await Admin.findById(req.params.id)
-//         res.status(200).json(admin)
-//     }catch(err){
-//         res.status(404).json({msg: "Server Error.", error: err})
-//     }
+router.get('/:id',auth,async (req, res)=>{
+    try{
+        const admin = await Admin.findById(req.params.id)
+        res.status(200).json(admin)
+    }catch(err){
+        res.status(404).json({msg: "Server Error.", error: err})
+    }
     
-// })
+})
 
 router.post('/signup',async (req, res)=>{
     try{

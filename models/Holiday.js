@@ -11,7 +11,7 @@ const holidaySchema = mongoose.Schema({
         trim: true
     },
     startDate: {
-        type: Date,
+        type: String,
         required: true
     },
     duration: {

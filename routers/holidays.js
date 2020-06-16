@@ -55,6 +55,7 @@ router.put('/:id', async (req, res)=>{
         }
         const {title, description, startDate, duration} = req.body
         const newHoliday = new Holiday({
+            _id: req.params.id,
             title,
             description,
             startDate,

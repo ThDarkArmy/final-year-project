@@ -7,7 +7,7 @@ const auth = require('../middlewares/check-auth')
 router.get('/', async (req, res)=>{
     try{
         const events = await Event.find({}).select("title description startDate duration").exec()
-        res.status(200).json(events)
+        res.status(200).json({events: events})
     }catch(err){
         res.status(500).json({msg: "Server Error", error: err})
     }
@@ -16,7 +16,7 @@ router.get('/', async (req, res)=>{
 // get event by id
 router.get('/:id', async (req, res)=>{
     try{
-        const event = await Event.findById(req.params.id)
+        const event = await Event.findById(req.params.id).select("title description startDate duration").exec()
         res.status(200).json(event)
     }catch(err){
         res.status(500).json({msg: "Server Error", error: err})
@@ -26,9 +26,9 @@ router.get('/:id', async (req, res)=>{
 // add event
 router.post('/', (req, res)=>{
     try{
-        if(!auth.admin){
-            return res.status(400).json({msg: "Only admin is authorized."})
-        }
+        // if(!auth.admin){
+        //     return res.status(400).json({msg: "Only admin is authorized."})
+        // }
         const {title, description, startDate, duration} = req.body
         const newEvent = new Event({
             title,
@@ -55,6 +55,7 @@ router.put('/:id', async (req, res)=>{
         }
         const {title, description, startDate, duration} = req.body
         const newEvent = new Event({
+            _id: req.params.id,
             title,
             description,
             startDate,

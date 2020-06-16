@@ -1,19 +1,19 @@
 const mongoose = require('mongoose')
 
-const examSchema = mongoose.Schema({
+const noticeSchema = mongoose.Schema({
     title: {
         type: String, 
         required: true,
         trim: true
     },
-    std:{
+    description: {
+        type: String,
+        trim: true
+    },
+    date: {
         type: String,
         required: true
-    },
-    routine: {
-        type: String,
-
     }
 })
 
-module.exports = mongoose.model("Exam", examSchema)
+module.exports = mongoose.model("Notice", noticeSchema)

@@ -9,7 +9,7 @@ require('./config/database')
 
 // dotenv
 require('dotenv').config()
-
+app.use(express.static(__dirname));
 // setting port
 const PORT = process.env.PORT | 5000
 
@@ -34,6 +34,9 @@ const holiday = require('./routers/holidays')
 const timetable = require('./routers/timetable')
 const assignment = require('./routers/assignments')
 const solution = require('./routers/solutions')
+const notice = require('./routers/notices')
+const facility = require('./routers/facilities')
+const exam = require('./routers/exams')
 
 app.use('/attendance',attendance)
 app.use('/student',student)
@@ -45,6 +48,9 @@ app.use('/holiday', holiday)
 app.use('/timetable', timetable)
 app.use('/assignment', assignment)
 app.use('/solution', solution)
+app.use('/notice', notice)
+app.use('/facility', facility)
+app.use('/exam', exam)
 
 
 app.listen(PORT, ()=>{

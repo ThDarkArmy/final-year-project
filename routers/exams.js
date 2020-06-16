@@ -2,22 +2,35 @@ const express = require('express')
 const router = express.Router()
 const Exam = require('../models/Exam')
 const auth = require('../middlewares/check-auth')
+const multer = require('multer')
+
+
+const storage = multer.diskStorage({
+    destination: function(req, file, cb){
+        cb(null, 'files/routineFiles/')
+    },
+    filename: function(req, file, cb){
+        cb(null, file.originalname)
+    }
+})
+
+const upload = multer({storage: storage})
 
 // get all exams
 router.get('/', async (req, res)=>{
     try{
-        const exams = await Exam.find({})
-        res.status(200).json(exams)
+        const exams = await Exam.find({}).select("title std routine _id").exec()
+        res.status(200).json({exams: exams})
     }catch(err){
         res.status(500).json({msg: "Server Error", error: err})
     }
 })
 
 // get exam by class
-router.get('/:std', async (req, res)=>{
+router.get('/std/:std', async (req, res)=>{
     try{
-        const exams = await Exam.find({std: req.params.std);
-        res.status(200).json(exams)
+        const exams = await Exam.find({std: req.params.std}).select('title std routine _id').exec()
+        res.status(200).json({exams: exams})
     }catch(err){
         res.status(500).json({msg: "Server Error", error: err})
     }
@@ -26,7 +39,7 @@ router.get('/:std', async (req, res)=>{
 // get exam by id
 router.get('/:id', async (req, res)=>{
     try{
-        const exam = await Exam.findById(req.params.id)
+        const exam = await Exam.findById(req.params.id).select('title std routine _id')
         res.status(200).json(exam)
     }catch(err){
         res.status(500).json({msg: "Server Error", error: err})
@@ -34,15 +47,20 @@ router.get('/:id', async (req, res)=>{
 })
 
 // add exam
-router.post('/',auth, (req, res)=>{
+router.post('/',upload.single('routine'), (req, res)=>{
     try{
-        if(!auth.admin){
-            return res.status(400).json({msg: "Only admin is authorized."})
+        // if(!auth.admin){
+        //     return res.status(400).json({msg: "Only admin is authorized."})
+        // }
+        console.log(req.body)
+        if(!req.file){
+            return res.status(400).json({msg: "File not found."})
         }
-        const {title, routine} = req.body
+        const {title,std} = req.body
         const newExam = new Exam({
             title,
-            routine
+            std,
+            routine: req.file.path
         })
         newExam.save();
         res.status(201).json({msg: "Exam added successfully."})
@@ -52,39 +70,45 @@ router.post('/',auth, (req, res)=>{
 })
 
 // edit exam
-router.put('/:id',auth, async (req, res)=>{
+router.put('/:id',upload.single('routine'), async (req, res)=>{
     try{
-        if(!auth.admin){
-            return res.status(400).json({msg: "Only admin is authorized."})
-        }
+        // if(!auth.admin){
+        //     return res.status(400).json({msg: "Only admin is authorized."})
+        // }
+        
         var exam = await Exam.findById(req.params.id)
         if(!exam){
             return res.status(400).json({msg: "Exam not found."})
         }
-        const {title, routine} = req.body
+        if(!req.file){
+            return res.status(400).json({msg: "File not found."})
+        }
+        const {title,std} = req.body
         const newExam = new Exam({
+            _id: req.params.id,
             title,
-            routine
+            std,
+            routine: req.file.path
         })
         const response = await Exam.findByIdAndUpdate(req.params.id, {$set: newExam}, {new: true})
-        res.status(200).json({msg: "Exam updated successfully."})
+        res.status(200).json({msg: "Exam updated."})
     }catch(err){
         res.status(500).json({msg: "Server Error", error: err})
     }
 })
 
 // delete exam
-router.delete('/:id',auth, async (req, res)=>{
+router.delete('/:id', async (req, res)=>{
     try{
-        if(!auth.admin){
-            return res.status(400).json({msg: "Only admin is authorized."})
-        }
+        // if(!auth.admin){
+        //     return res.status(400).json({msg: "Only admin is authorized."})
+        // }
         var exam = await Exam.findById(req.params.id)
         if(!exam){
             return res.status(400).json({msg: "Exam not found."})
         }
         const response = await Exam.findByIdAndDelete(req.params.id)
-        res.status(200).json({msg: "Exam deleted successfully."})
+        res.status(200).json({msg: "Exam deleted."})
     }catch(err){
         res.status(500).json({msg: "Server Error", error: err})
     }

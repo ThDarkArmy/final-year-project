@@ -29,7 +29,7 @@ const studentSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    attendance:[{
+    attendanceHistory:[{
         date: {
             type : String,
             trim : true,
@@ -39,7 +39,7 @@ const studentSchema = new mongoose.Schema({
             default : false
         }
     }],
-    fee: [{
+    feeHistory: [{
         tuitionFee: {
             type: Number,
             required: true
@@ -54,9 +54,16 @@ const studentSchema = new mongoose.Schema({
             type: Boolean,
             default: false
         },
-        datePaid: Date,
-        month: String,
-        year: Number 
+        datePaid: {
+            type: String,
+            default: null
+        },
+        month: {
+            type: String,
+        },
+        year: {
+            type: String
+        } 
     }]
 })
 

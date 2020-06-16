@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router()
 const mongoose = require('mongoose')
+const Student = require('../models/Student')
 
 const Fee = require('../models/Fee')
 
@@ -49,15 +50,22 @@ router.post("/", async (req, res)=>{
             year: new Date().getFullYear(),
             tuitionFee,
             examFee,
-            admissionFee
+            admissionFee,
         })
         // console.log(newFee)
         let fee = await Fee.findOne({$and:[{std: newFee.std}, {month: newFee.month}, {year: newFee.year}]})
-        console.log(fee)
+        //console.log(fee)
         if(fee){
             return res.status(400).json({msg: "Fee is already added for this class."})
         }
         newFee.save()
+        const students = await Student.find({std: std})
+        students.forEach(async student => {
+            var feeHist = student.feeHistory
+            feeHist.push(newFee)
+            student.feeHistory = feeHist
+            const st = await Student.findByIdAndUpdate(student._id, {$set: student}, {new: true})
+        })
         res.status(201).json({msg: "Fee added successfully."})
     }catch(err){
         res.status(500).json({msg: "Server Error", Error: err})
@@ -71,6 +79,8 @@ router.put('/:id', async (req, res)=>{
         const newFee = new Fee({
             _id: req.params.id,
             std,
+            month: new Date().getMonth(),
+            year: new Date().getFullYear(),
             tuitionFee,
             examFee,
             admissionFee
@@ -80,6 +90,14 @@ router.put('/:id', async (req, res)=>{
             return res.status(400).json({msg: "Fee is not present for this id."})
         }
        const response = await Fee.findByIdAndUpdate(req.params.id, {$set: newFee}, {new: true})
+       const students = await Student.find({std: std})
+        students.forEach(async student => {
+            var feeHist = student.feeHistory
+            feeHist.pop()
+            feeHist.push(newFee)
+            student.feeHistory = feeHist
+            const st = await Student.findByIdAndUpdate(student._id, {$set: student}, {new: true})
+        })
        res.status(201).json({msg: "Fee updated successfully."})
 
     }catch(err){

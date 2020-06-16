@@ -70,10 +70,11 @@ router.post('/login', async (req, res)=>{
     try{
         const {email, password} = req.body
         let teacher = await Teacher.findOne({email})
-        if(!teacher) return res.status(400).json({msg: "Invalid Credentials"})
+        if(!teacher) return res.status(400).json({msg: "Invalid Credentials email"})
 
         const isMatch = await bcrypt.compare(password, teacher.password) 
-        if(!isMatch) return res.status(400).json({msg: "Invalid Credentials"})
+        console.log(isMatch)
+        if(!isMatch) return res.status(400).json({msg: "Invalid Credentials passw"})
 
         const payload = {
             teacher: teacher

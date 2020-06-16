@@ -23,7 +23,6 @@ const feeSchema = mongoose.Schema({
     admissionFee: {
         type: Number
     }
-
 })
 
 module.exports = mongoose.model("Fee", feeSchema)

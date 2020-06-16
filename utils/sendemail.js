@@ -35,7 +35,7 @@ class SendMail{
     }
 }
 
-// const mail = new SendMail('rajputanjali@gmail.com', 'jaccobrths@gmail.com', 'subject', 'message from nodemailer');
+// const mail = new SendMail('jaccobrths@gmail.com', 'subject', 'message from nodemailer');
 // mail.sendMail();
 
 module.exports = SendMail;

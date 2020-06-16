@@ -11,17 +11,27 @@ mongoose.Promise = global.Promise
 
 router.get('/',async (req, res)=>{
     try{
-        const student = await Student.find({})
-        res.status(200).json(student)
+        const student = await Student.find({}).select("-__v -password")
+        res.status(200).json({students: student})
     }catch(err){
         res.status(404).json({msg: "Server Error.", error: err})
     }
 })
 
-router.get('/:id',auth,async (req, res)=>{
+router.get('/:id',async (req, res)=>{
     try{
-        const student = await Student.findById(req.params.id)
+        const student = await Student.findById(req.params.id).select("-__v -password")
         res.status(200).json(student)
+    }catch(err){
+        res.status(404).json({msg: "Server Error.", error: err})
+    }
+    
+})
+
+router.get('/std/:std',async (req, res)=>{
+    try{
+        const students = await Student.find({std: req.params.std}).select("-__v -password")
+        res.status(200).json({students: students})
     }catch(err){
         res.status(404).json({msg: "Server Error.", error: err})
     }
@@ -30,7 +40,7 @@ router.get('/:id',auth,async (req, res)=>{
 
 router.post('/signup',async (req, res)=>{
     try{
-        console.log("signup request")
+        //console.log("signup request")
         const newStudent = new Student({
             name: req.body.name,
             roll: req.body.roll,
@@ -84,7 +94,7 @@ router.post('/signup',async (req, res)=>{
 router.post('/login', async (req, res)=>{
     try{
         const {email, password} = req.body
-        let student = await Student.findOne({email})
+        let student = await Student.findOne({email}).select("-__v -password")
         if(!student) return res.status(400).json({msg: "Invalid Credentials"})
 
         const isMatch = await bcrypt.compare(password, student.password) 

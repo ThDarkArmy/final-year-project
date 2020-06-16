@@ -20,13 +20,14 @@ router.post('/:std', async (req, res)=>{
         var presentStudent = []
         var mailSentTo = []
         const ids = req.body.id
+        console.log(ids)
         const students = await Student.find({std: req.params.std})
         students.forEach(async student => {
             if(ids.includes(student._id.toString())){
                 presentStudent.push(student)
-                var studentAttendance = student.attendance
+                var studentAttendance = student.attendanceHistory
                 studentAttendance.push({date: new Date().toISOString().slice(0,10).substring(0,10), isPresent: true})
-                const st = await Student.findByIdAndUpdate(student._id, {$set:{attendance: studentAttendance}}, {new : true})
+                const st = await Student.findByIdAndUpdate(student._id, {$set:{attendanceHistory: studentAttendance}}, {new : true})
                 const newAttendance = new Attendance({
                     roll: student.roll,
                     std: student.std,
@@ -37,17 +38,18 @@ router.post('/:std', async (req, res)=>{
                 newAttendance.save()
                
             }else{
+                
                 // send mail
                 const to = student.email
                 const subject = "About your child"
                 const text = `Your child Mr/Ms ${student.name} is not present in the school, pls convey us he/she is home or not?`;
                 const sendEmail = new SendEmail(to, subject, text)
-                //sendEmail.sendMail();
+                sendEmail.sendMail();
 
                 mailSentTo.push({name: student.name, email: student.email, text: text})
-                var studentAttendance = student.attendance
+                var studentAttendance = student.attendanceHistory
                 studentAttendance.push({date: new Date().toISOString().slice(0,10).substring(0,10), isPresent: false})
-                const st = await Student.findByIdAndUpdate(student._id, {$set:{attendance: studentAttendance}}, {new : true})  
+                const st = await Student.findByIdAndUpdate(student._id, {$set:{attendanceHistory: studentAttendance}}, {new : true})  
             }     
         });
         res.status(200).json({PresentStudent: presentStudent, mailSentTo: mailSentTo})

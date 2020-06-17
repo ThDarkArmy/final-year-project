@@ -3,8 +3,8 @@ const Nexmo = require('nexmo')
 const from = 'Vonage SMS API';
 
 const nexmo = new Nexmo({
-    apiKey: '6fd90703',
-    apiSecret: '0EmQlZp6Loq800AT',
+    apiKey: process.env.apiKey,
+    apiSecret: process.env.apiSecret,
   });
   
 

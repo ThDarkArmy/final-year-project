@@ -1,7 +1,8 @@
 const express = require("express");
 const Attendance = require('../models/attendance')
 const Student = require('../models/Student')
-const SendEmail = require('../utils/sendemail')
+const SendEmail = require('../utils/sendemail');
+const SendSMS = require("../utils/sendsms");
 const router = express.Router()
 
 
@@ -20,7 +21,7 @@ router.post('/:std', async (req, res)=>{
         var presentStudent = []
         var mailSentTo = []
         const ids = req.body.id
-        console.log(ids)
+        //console.log(ids)
         const students = await Student.find({std: req.params.std})
         students.forEach(async student => {
             if(ids.includes(student._id.toString())){
@@ -39,10 +40,15 @@ router.post('/:std', async (req, res)=>{
                
             }else{
                 
+                // send sms
+                console.log(student.mobile)
+                // const To = student.mobile
                 // send mail
                 const to = student.email
                 const subject = "About your child"
                 const text = `Your child Mr/Ms ${student.name} is not present in the school, pls convey us he/she is home or not?`;
+                const sendsms = new SendSMS(student.mobile, text)
+                sendsms.sendSMS()
                 const sendEmail = new SendEmail(to, subject, text)
                 sendEmail.sendMail();
 

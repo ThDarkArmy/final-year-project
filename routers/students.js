@@ -94,8 +94,9 @@ router.post('/signup',async (req, res)=>{
 router.post('/login', async (req, res)=>{
     try{
         const {email, password} = req.body
-        let student = await Student.findOne({email}).select("-__v -password")
+        let student = await Student.findOne({email}).select("-__v")
         if(!student) return res.status(400).json({msg: "Invalid Credentials"})
+        console.log(student)
 
         const isMatch = await bcrypt.compare(password, student.password) 
         if(!isMatch) return res.status(400).json({msg: "Invalid Credentials"})
@@ -111,7 +112,7 @@ router.post('/login', async (req, res)=>{
         })
 
     }catch(err){
-        console.log(err.message)
+        console.log(err)
         res.status(400).json({error: err})
     }
    

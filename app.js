@@ -37,6 +37,7 @@ const solution = require('./routers/solutions')
 const notice = require('./routers/notices')
 const facility = require('./routers/facilities')
 const exam = require('./routers/exams')
+const notes = require('./routers/notes')
 
 app.use('/attendance',attendance)
 app.use('/student',student)
@@ -51,6 +52,7 @@ app.use('/solution', solution)
 app.use('/notice', notice)
 app.use('/facility', facility)
 app.use('/exam', exam)
+app.use('/notes', notes)
 
 
 app.listen(PORT, ()=>{

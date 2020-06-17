@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 
-const assignmentSchema = mongoose.Schema({
+const notesSchema = mongoose.Schema({
     title: {
         type: String,
         trim: true,
@@ -11,9 +11,9 @@ const assignmentSchema = mongoose.Schema({
         required: true,
         trim: true
     },
-    assignmentFile: {
+    notesFile: {
         type: String
     }
 })
 
-module.exports = mongoose.model("Assignment", assignmentSchema)
+module.exports = mongoose.model("Notes", notesSchema)

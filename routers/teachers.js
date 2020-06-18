@@ -11,7 +11,7 @@ mongoose.Promise = global.Promise
 router.get('/',async (req, res)=>{
     try{
         const teachers = await Teacher.find({})
-        res.status(200).json(teachers)
+        res.status(200).json({teachers: teachers})
     }catch(err){
         res.status(404).json({msg: "Server Error.", error: err})
     }

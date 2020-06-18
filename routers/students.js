@@ -18,6 +18,32 @@ router.get('/',async (req, res)=>{
     }
 })
 
+router.get('/defaulter/students',async (req, res)=>{
+   try{
+        var defaulters = []
+        const students = await Student.find({}).select("-__v -password")
+       
+        students.forEach(student => {
+            //console.log(student.feeHistory[0])
+            if(student.feeHistory.length>0){
+                fee = student.feeHistory[student.feeHistory.length-1]
+                console.log(fee.isPaid)
+                //console.log(student.feeHistory[student.feeHistory.length-1])
+                if(!student.feeHistory[student.feeHistory.length-1].isPaid){
+                    defaulters.push(student)
+                }
+            }
+           
+        })
+       // console.log(defaulters)
+        res.status(200).json({students: defaulters})
+    }catch(err){
+        res.status(404).json({msg: "Server Error.", error: err})
+    }
+})
+
+
+
 router.get('/:id',async (req, res)=>{
     try{
         const student = await Student.findById(req.params.id).select("-__v -password")
@@ -38,6 +64,19 @@ router.get('/std/:std',async (req, res)=>{
     
 })
 
+router.post("/feepayment", async (req, res)=>{
+    try{
+        const student = await Student.findById(req.body.id)
+        var feeHist = student.feeHistory
+        feeHist[feeHist.length-1].isPaid = true
+        const response = await Student.findByIdAndUpdate(req.body.id, {$set: {feeHistory: feeHist}}, {new: true})
+        res.status(200).json({msg: "Fee payment successfull"})
+
+    }catch(err){
+        res.status(404).json({msg: "Server Error.", error: err})
+    }
+})
+
 router.post('/signup',async (req, res)=>{
     try{
         //console.log("signup request")
@@ -54,6 +93,7 @@ router.post('/signup',async (req, res)=>{
         if(student){
             return res.status(500).json({msg: "User with given email already exists."});
         }
+    
         // adding fee to the student
         const fee = await Fee.findOne({$and:[{std: newStudent.std}, {month: new Date().getMonth()}, {year: new Date().getFullYear()}]})
         if(fee){
@@ -66,7 +106,7 @@ router.post('/signup',async (req, res)=>{
                 isPaid: false,
                 datePaid: null,
             }]
-            newStudent.fee = fees
+            newStudent.feeHistory = fees
         }
         const salt = await bcrypt.genSalt(8)
         const hashedPassword = await bcrypt.hash(newStudent.password, salt)
@@ -96,7 +136,7 @@ router.post('/login', async (req, res)=>{
         const {email, password} = req.body
         let student = await Student.findOne({email}).select("-__v")
         if(!student) return res.status(400).json({msg: "Invalid Credentials"})
-        console.log(student)
+        //console.log(student)
 
         const isMatch = await bcrypt.compare(password, student.password) 
         if(!isMatch) return res.status(400).json({msg: "Invalid Credentials"})
@@ -150,3 +190,6 @@ router.delete('/:id',auth, async (req, res)=>{
 })
 
 module.exports = router
+
+
+

@@ -41,7 +41,7 @@ router.post('/:std', async (req, res)=>{
             }else{
                 
                 // send sms
-                console.log(student.mobile)
+                //console.log(student.mobile)
                 // const To = student.mobile
                 // send mail
                 const to = student.email

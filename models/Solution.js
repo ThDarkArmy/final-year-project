@@ -1,9 +1,8 @@
 const mongoose = require('mongoose')
 
 const solutionSchema = mongoose.Schema({
-    title: {
+    studentName: {
         type: String,
-        trim: true,
         required: true
     },
     solutionFile: {

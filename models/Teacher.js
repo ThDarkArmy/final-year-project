@@ -23,17 +23,7 @@ const teacherSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true
-    },
-    attendance:[{
-        date: {
-            type : String,
-            trim : true,
-        },
-        isPresent : {
-            type : Boolean,
-            default : false
-        }
-    }],
+    }
 })
 
 const Teacher = mongoose.model("Teacher", teacherSchema)

@@ -7,7 +7,7 @@ const auth = require('../middlewares/check-auth')
 
 const storage = multer.diskStorage({
     destination: function(req, file, cb){
-        cb(null, 'solutionFiles/')
+        cb(null, 'files/solutionFiles/')
     },
     filename: function(req, file, cb){
         cb(null, file.originalname)
@@ -19,8 +19,8 @@ const upload = multer({storage: storage})
 // get all solutions
 router.get('/', async (req, res)=>{
     try{
-        const solutions = await Solution.find({}).populate('assignment', 'title assignmentFile').exec()
-        res.status(200).json(solutions)
+        const solutions = await Solution.find({}).select("-__v").exec()
+        res.status(200).json({solutions: solutions})
     }catch(err){
         res.status(500).json({msg: "Server Error", error: err})
     }
@@ -29,7 +29,7 @@ router.get('/', async (req, res)=>{
 // get solution by assignment
 router.get('/assignment/:id',auth, async (req, res)=>{
     try{
-        const solutions = await Solution.find({assignment: req.params.id})
+        const solutions = await Solution.find({assignment: req.params.id}).select("-__v").exec()
         res.status(200).json(solutions)
     }catch(err){
         res.status(500).json({msg: "Server Error", error: err})
@@ -39,7 +39,7 @@ router.get('/assignment/:id',auth, async (req, res)=>{
 // get solution by id
 router.get('/:id',auth, async (req, res)=>{
     try{
-        const solution = await Solution.findById(req.params.id).populate('assignment', 'title assignmentFile').exec()
+        const solution = await Solution.findById(req.params.id).select("-__v").exec()
         res.status(200).json(solution)
     }catch(err){
         res.status(500).json({msg: "Server Error", error: err})
@@ -47,31 +47,25 @@ router.get('/:id',auth, async (req, res)=>{
 })
 
 // add solution
-router.post('/:id', upload.single('solutionFile'), auth,async (req, res)=>{
+router.post('/', upload.single('solutionFile'), async (req, res)=>{
     try{
         if(!req.file){
             return res.status(400).json({msg: "File not found."})
         }
-        const assignment = await Assignment.findById(req.params.id)
+        const assignment = await Assignment.findById(req.body.assignment)
         if(!assignment){
-            return res.status(400).json({msg: "Question not found."})
+            return res.status(400).json({msg: "Assignment not found."})
         }
         const solution = new Solution({
-            title: req.body.title,
             solutionFile: req.file.path,
-            assignment: req.params.id,
-            student: req.student._id
+            assignment: req.body.assignment,
+            student: req.body.student,
+            studentName: req.body.studentName
         })
 
         solution.save()
        
-        
-        var sol = assignment.solutions
-        sol.push(solution._id)
-        assignment.solutions = sol
-        const asgn = await Assignment.findByIdAndUpdate(req.params.id, {$set: assignment}, {new: true})
-        
-        res.status(201).json(solution)
+        res.status(201).json({msg: "Solution uploaded."})
 
     }catch(err){
         res.status(500).json({msg: "Server Error", error: err})
@@ -79,7 +73,7 @@ router.post('/:id', upload.single('solutionFile'), auth,async (req, res)=>{
 })
 
 // edit solution
-router.put('/:id',upload.single('solutionFile'), auth, async (req, res)=>{
+router.put('/:id',upload.single('solutionFile'), async (req, res)=>{
     try{
         if(!req.file){
             return res.status(400).json({msg: "File not found."})
